@@ -6,13 +6,15 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const helmet = require('helmet');
 
-const userServiceProxy = httpProxy('http://localhost:3000/index.html');
+const userServiceProxy = httpProxy('http://localhost:3000');
 
 // Proxy request
 let count = 1;
 app.get('/', (req, res, next) => {
-  setTimeout(() => { console.log('log ', count++)}, 3000)
-  userServiceProxy(req, res, next);
+  setTimeout(() => {  
+    console.log('log ', count++)
+    userServiceProxy(req, res, next);
+  }, 300)
 })
 
 app.use(logger('dev'));

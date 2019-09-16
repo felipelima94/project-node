@@ -1,3 +1,4 @@
 node_modules/
 .npmignore.txt
 Download errors.txt
+.vscode/
