@@ -18,9 +18,19 @@ http.createServer((req, res) => {
         req.on('end', () => {
             const bodyParsed = JSON.parse(Buffer.concat(body));
             const fileName = 'data.json'
+            
+            const filePathBr = 'pt-br/'
 
-            let oldData = fs.readFileSync(fileName, 'utf8') || null
-            let dataLoaded = oldData != null ? JSON.parse(oldData) : []
+            let data = {}
+            readFiles(filePathBr, (filename, content) => {
+                data[filename] = content
+            }, err => {throw err})
+
+            let dataLoaded = {}
+            if(fs.existsSync(fileName)) {
+                let oldData = fs.readFileSync(fileName, 'utf8') || null
+                dataLoaded = oldData != null ? JSON.parse(oldData) : {}
+            }
 
             let newKeys = Object.keys(bodyParsed)
 
@@ -31,7 +41,7 @@ http.createServer((req, res) => {
             let dataToSave = JSON.stringify(dataLoaded)
             fs.writeFileSync(fileName, dataToSave, 'utf8')
             
-            res.setHeader('Content-Type', 'application/json');        
+            res.setHeader('Content-Type', 'application/json')
             res.write(dataToSave)
             res.end()
         })
@@ -39,3 +49,21 @@ http.createServer((req, res) => {
 
     console.log(url, method)
 }).listen(3001);
+
+function readFiles(dirname, onFileContent, onError) {
+    fs.readdir(dirname, function(err, filesnames) {
+        if(err) {
+            onError(err);
+            return;
+        }
+        filesnames.forEach(filename => {
+            fs.readFile(dirname + filename, 'utf-8', (err, content) => {
+                if(err) {
+                    onError(err)
+                    return;
+                }
+                onFileContent(filename, content)
+            })
+        })
+    })
+}
